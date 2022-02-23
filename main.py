@@ -26,5 +26,5 @@ if __name__ == "__main__":
     if not os.path.isdir('csv_inputs'):
         os.mkdir("csv_outputs")
     for file_name in os.listdir("pdf_inputs"):
-        df_obj = convert_to_csv(file_name)
+        df_obj = convert_to_csv(file_name, rename_columns=True, columns=columns)
         df_list.append(df_obj)
