@@ -1,24 +1,25 @@
 import tabula
+from column_values import columns
+from typing import Dict
+import os
 
-dfs = tabula.read_pdf("input.pdf", multiple_tables=False, pages="all")
 
-df = dfs[0].dropna().copy()
+def convert_to_csv(file_name: str, columns: Dict = columns, rename_columns=False):
+    path = "pdf_inputs/" + file_name
+    dfs = tabula.read_pdf(path, multiple_tables=False, pages="all")
+    df = dfs[0].dropna().copy()
+    if rename_columns:
+        df.loc[max(df.index) + 1, :] = df.columns.tolist()
+        df.rename(columns=columns, inplace=True)
+        df.sort_values(by="County", inplace=True)
 
-df.loc[max(df.index)+1, :] = df.columns.tolist()
+    df.to_csv("csv_outputs/" + file_name.split(".")[0] + "csv", index=False)
 
-df.rename(columns={'IMPERIAL COUNTY':"County",
-                   'Brawley city':"Jurisdiction",
-                   '25,800': "Population2012",
-                   '34,600': "Population2020",
-                   '40,600': "Population2035",
-                   '42,900': "Population2040",
-                   '7,600': "Household2012",
-                   '11,400': "Household2020",
-                   '14,100': "Household2035",
-                   '15,000': "Household2040",
-                   '8,000': "Employment2012",
-                   '13,700': "Employment2020",
-                   '16,300': "Employment2035",
-                   '16,800': "Employment2040"}, inplace=True)
+    return df
 
-df.sort_values(by="County", inplace=True)
+
+if __name__ == "__main__":
+    df_list = []
+    for file_name in os.listdir("pdf_inputs"):
+        df_obj = convert_to_csv(file_name)
+        df_list.append(df_obj)
